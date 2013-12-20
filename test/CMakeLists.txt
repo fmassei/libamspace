@@ -1,0 +1,4 @@
+add_subdirectory (sgpverify)
+add_subdirectory (testmath)
+add_subdirectory (testprojections)
+add_subdirectory (vsop87test)
