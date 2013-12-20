@@ -1,5 +1,19 @@
 libamspace is a library with some useful space-related algorithms.
 
+libamspace contains:
+- ELP82
+- VSOP87
+- SGP (this comprehends SGP4, SDP4, SGP8, SDP8)
+- some mathematical utilities (like Newton-Raphson method, Simpson Integration,
+    Linear system solving by residue, Besselian interpolations, and much more)
+- Mercator/UTM projections utilities
+- Various handy stuff (algorithm on angles, rotations, ecliptic calculations,
+    etc.)
+
+The whole repository is "big" due to ELP82 and VSOP87 ephemerides, along with
+a lot of test data. If you don't want (or already have) any of these just
+download the "src" folder.
+
 Contacts:
 Francesco Massei
 fmassei@gmail.com
