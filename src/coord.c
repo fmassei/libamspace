@@ -23,9 +23,7 @@
 */
 int amsp_coord_rect2spheric(DT out[3], DT const r[3])
 {
-    /*out[0] = ATAN2(r[1], r[0]);
-    out[1] = ATAN2(r[2], DIST2(r[0], r[1]));*/
-    out[0] = (PI/2.)-ACOS(r[1]/DIST3(r[0], r[1], r[2]));
+    out[0] = ATAN2(r[1],DIST3(r[0], r[1], r[2]));
     out[1] = ATAN2(r[0],r[2]);
     out[2] = DIST3(r[0], r[1], r[2]);
     return 0;
@@ -59,6 +57,19 @@ int amsp_coord_ecliptic2equatorial(DT out[3], DT const v[3], DT e)
     out[0] = ATAN2(SIN(g)*COS(e)-TAN(b)*SIN(e), COS(g));
     out[1] = ASIN(SIN(b)*COS(e)+COS(b)*SIN(e)*SIN(g));
     out[2] = v[2];
+    return 0;
+}
+
+/* rotate around one axis */
+int amsp_coord_rotate(DT out[3], DT const v[3], DT q, int axis)
+{
+    int a1, a2;
+    if (axis==0) { a1=1; a2=2; }
+    else if (axis==1) { a1=2; a2=0; }
+    else if (axis==2) { a1=0; a2=1; }
+    out[axis] = v[axis];
+    out[a1] = v[a1]*COS(q)-v[a2]*SIN(q);
+    out[a2] = v[a1]*SIN(q)+v[a2]*COS(q);
     return 0;
 }
 
