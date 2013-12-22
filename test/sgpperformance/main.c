@@ -49,7 +49,7 @@ static int test_nonThreaded(tle_st *tle)
                 p->satNo, sat.t,
                           sat.pos[0], sat.pos[1], sat.pos[2],
                           sat.vel[0], sat.vel[1], sat.vel[2]);*/
-            sat.t += 10;
+            sat.t += 1;
         }
     }
     return 0;
@@ -70,7 +70,7 @@ static void *threadP(tle_st *p)
             p->satNo, sat.t,
                       sat.pos[0], sat.pos[1], sat.pos[2],
                       sat.vel[0], sat.vel[1], sat.vel[2]);*/
-        sat.t += 10;
+        sat.t += 1;
     }
     return NULL;
 }
@@ -83,6 +83,47 @@ static int test_threaded(tle_st *tle)
         pthread_create(&th[i], NULL, threadP, p);
     }
     for (; i>=0; --i)
+        pthread_join(th[i], NULL);
+    return 0;
+}
+
+pthread_mutex_t mt;
+static void *threadP2(tle_st *tle)
+{
+    tle_st *p;
+    for (p=tle; p!=NULL; p=p->next) {
+        sat_st sat;
+        pthread_mutex_lock(&mt);
+        if (p->dtmm<-1111111.) {
+            pthread_mutex_unlock(&mt);
+            continue;
+        }
+        p->dtmm = -200000000.;
+        pthread_mutex_unlock(&mt);
+        satFromTLE(&sat, p);
+        sgp4_init(&sat, &g);
+        sat.t = 0;
+        while (sat.t<=1440) {
+            if (sgp4(&sat, &g)!=0) {
+                fprintf(stderr, "Error %d on %d\n", p->satNo, sat.error);
+                break;
+            }
+            /*printf("%d %16.8f %16.8f %16.8f %16.8f %12.9f %12.9f %12.9f\n",
+                p->satNo, sat.t,
+                          sat.pos[0], sat.pos[1], sat.pos[2],
+                          sat.vel[0], sat.vel[1], sat.vel[2]);*/
+            sat.t += 1;
+        }
+    }
+    return NULL;
+}
+static void test_threaded2(tle_st *tle)
+{
+    pthread_t th[16];
+    int i;
+    for (i=0; i<16; ++i)
+        pthread_create(&th[i], NULL, threadP2, tle);
+    for (i=0; i<16; ++i)
         pthread_join(th[i], NULL);
     return 0;
 }
@@ -112,6 +153,11 @@ int main(const int argc, const char *argv[])
 
     et = elapsedTime();
     test_threaded(tle);
+    et = elapsedTime()-et;
+    fprintf(stderr, "elapsed time: %f\n", et);
+
+    et = elapsedTime();
+    test_threaded2(tle);
     et = elapsedTime()-et;
     fprintf(stderr, "elapsed time: %f\n", et);
 
