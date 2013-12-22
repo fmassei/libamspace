@@ -28,7 +28,7 @@ int main(void)
     DT start, stop, delta;
 
     getgravconst(WGS84, &g);
-    start = 0.; stop = 1440; delta = .10;
+    start = 0.; stop = 1440; delta = .1;
     while ((tle = tle_read(stdin, 0, 0))!=NULL) {
         sat_st sat;
         DT sph[3], mer[2], utm[4];
@@ -42,19 +42,23 @@ int main(void)
                 goto nextsat;
             }
             amsp_coord_rect2spheric(sph, sat.pos);
-            printf("%f %f %f\n",
-                sat.pos[0], sat.pos[1], sat.pos[2]);
+            /*printf("%f %f %f\n",
+                sat.pos[0], sat.pos[1], sat.pos[2]);*/
             amsp_projections_sph2latlon(sph, sph);
             //printf("%f %f\n",
             //    sph[1], sph[0]);
-            /*sph[1] += (360./(24.*60))*sat.t;
-            if (sph[1]>180.) sph[1]-=360.;*/
+            sph[1] += (360./(24.*60))*sat.t;
+            if (sph[1]>180.) sph[1]-=360.;
+            printf("%f %f\n",
+                sph[1], sph[0]);
             amsp_projections_latlon2mercator(mer, sph, 2048, 1588);
             amsp_projections_latlon2utm(utm, sph, &g);
-            //printf("%f %f > %f %f > %f %f %f\n",
-            //    sph[1], sph[0], mer[0], mer[1], utm[0], utm[1], utm[2]);
+            /*printf("%f %f > %f %f > %f %f %f > %f\n",
+                sph[1], sph[0], mer[0], mer[1], utm[0], utm[1], utm[2],
+                (360./(24.*60))*sat.t);*/
             /*printf("%f %f\n",
                 mer[0], mer[1]);*/
+            //printf("%f %f\n", sph[1], utm[1]);
             sat.t += delta;
         }
 nextsat:
