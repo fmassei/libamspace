@@ -66,7 +66,7 @@ int amsp_coord_rotate(DT out[3], DT const v[3], DT q, int axis)
     int a1, a2;
     if (axis==0) { a1=1; a2=2; }
     else if (axis==1) { a1=2; a2=0; }
-    else if (axis==2) { a1=0; a2=1; }
+    else /*(axis==2)*/ { a1=0; a2=1; }
     out[axis] = v[axis];
     out[a1] = v[a1]*COS(q)-v[a2]*SIN(q);
     out[a2] = v[a1]*SIN(q)+v[a2]*COS(q);

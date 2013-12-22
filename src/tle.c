@@ -39,7 +39,7 @@ static int header_parse(tle_st *tle, const char *buf)
     while (buf[len-1]=='\n' || buf[len-1]=='\r') --len;
     if (len==0 || len>=sizeof(tle->name))
         return -1;
-    strcpy(tle->name, buf);
+    strncpy(tle->name, buf, sizeof(tle->name));
     for (i=strlen(tle->name)-1; i>=0; --i)
         if (tle->name[i]=='\r' || tle->name[i]=='\n' || tle->name[i]==' ') {
             tle->name[i]='\0';
@@ -108,7 +108,7 @@ void tle_destroy(tle_st **tle)
 tle_st *tle_read(FILE *in, int readAll, int compatMode)
 {
     char buf[150];
-    tle_st *p, *head;
+    tle_st *p=NULL, *head;
     int recpos, line;
     head = NULL;
     recpos = 0;

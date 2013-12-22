@@ -18,7 +18,7 @@
 
 DT amsp_legendrePoly(int n, DT v)
 {
-    DT p, pn1, pn2, k;
+    DT p=0, pn1, pn2, k;
     int i;
     if (n==0) return 1.;
     if (n==1) return v;

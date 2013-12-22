@@ -84,7 +84,7 @@ vsop87_filepart_st *vsop87_filepart_read(const char *datadir,
 {
     char *fname;
     char buf[150];
-    vsop87_filepart_st *p, *head;
+    vsop87_filepart_st *p=NULL, *head;
     int recpos, line;
     FILE *in;
     int addSlash = (datadir[strlen(datadir)-1]!='/');

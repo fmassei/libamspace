@@ -168,7 +168,9 @@ elp82data_st *amsp_elp82_getData(const char *datadir)
                             calloc(nrec, sizeof(DT)))==NULL)
                     goto badexit;
         }
-        fgets(buf, sizeof(buf), in);    /* skip file description */
+        /* skip file description */
+        if (fgets(buf, sizeof(buf), in)==NULL)
+            goto badexit;
         while (fgets(buf, sizeof(buf), in)!=NULL) {
             if (buf[strlen(buf)-1]!='\n' && buf[strlen(buf)-1]!='\r')
                 goto badexit;
