@@ -34,6 +34,39 @@ int main(void)
         DT sph[3], mer[2], utm[4];
         satFromTLE(&sat, tle);
         sgp4_init(&sat, &g);
+
+        {
+            dtm_st dtm;
+            struct tm *tm;
+            time_t t;
+            DT jdate;
+            while (1) {
+            t = time(NULL);
+            tm = gmtime(&t);
+            dtm.tm = *tm;
+            dtm.sec = tm->tm_sec;
+            jdate = amsp_date_tm2julian(&dtm);
+            printf("%f\n", jdate);
+            //jdate -= amsp_date_gstime(jdate);
+            //printf("%f\n", jdate);
+            printf("%f\n", sat.epochJD);
+            sat.t = (jdate-sat.epochJD)*1440;
+            printf("%f\n", sat.t);
+            sgp4(&sat, &g);
+            amsp_coord_rect2spheric(sph, sat.pos);
+            sph[1] -= amsp_date_gstime(jdate);
+            amsp_coord_ecliptic2equatorial(sph, sph, amsp_coord_earthEclipticAtDate(jdate));
+            amsp_projections_sph2latlon(sph, sph);
+            printf("%f %f\n", sph[1], sph[0]);
+            /*amsp_coord_rect2spheric(sph, sat.pos);
+            amsp_coord_ecliptic2equatorial(sph, sph, amsp_coord_earthEclipticAtDate(jdate));
+            amsp_projections_sph2latlon(sph, sph);
+            printf("%f %f\n", sph[1], sph[0]);*/
+            sleep(1);
+            }
+        }
+        continue;
+
         sat.t = start;
         while (sat.t<=stop) {
             int ret;
