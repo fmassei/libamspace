@@ -17,6 +17,12 @@
 #ifndef H_FK5_H
 #define H_FK5_H
 
+#include "exports.h"
+#include "precision.h"
+#include "nutations.h"
+
+LIB_PUBLIC void amsp_fk5_teme2j2k(DT out[3], const DT v[3], DT jcent,
+                                    const nutdata_st *nutdata);
 
 
 #endif /* H_FK5_H */

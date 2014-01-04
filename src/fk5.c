@@ -15,7 +15,6 @@
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "fk5.h"
-#include "nutations.h"
 #include "mtx.h"
 #include "angles.h"
 
@@ -58,10 +57,10 @@ static void truemean(DT out[3][3], DT jcent, const nutdata_st *nut)
     d = (((.019*jcent-6.891)*jcent+1602961601.3280)*jcent)/3600.+297.85036306;
     o = (((.008*jcent+7.455)*jcent-6962890.5390)*jcent)/3600.+125.04452222;
     l = FMOD(l, 360.)*CGR;
-    l1 = FMOD(l, 360.)*CGR;
-    f = FMOD(l, 360.)*CGR;
-    d = FMOD(l, 360.)*CGR;
-    o = FMOD(l, 360.)*CGR;
+    l1 = FMOD(l1, 360.)*CGR;
+    f = FMOD(f, 360.)*CGR;
+    d = FMOD(d, 360.)*CGR;
+    o = FMOD(o, 360.)*CGR;
     for (dpsi=deps=0., i=0; i<107; ++i) {
         DT tv = nut->iar[i][0]*l + nut->iar[i][1]*l1 + nut->iar[i][2]*f +
                 nut->iar[i][3]*d + nut->iar[i][4]*o;
@@ -75,31 +74,31 @@ static void truemean(DT out[3][3], DT jcent, const nutdata_st *nut)
     ceps = COS(meps); seps = SIN(meps);
     cteps = COS(teps); steps = SIN(teps);
     if ((jcent*36525.+2451545.)>2450449.5) {
-        eqe = dpsi*COS(meps) + .00264*PI/(3600.*180.)*SIN(o) +
-                               .000063*PI/(3600.*180.)*SIN(2.*o);
+        eqe = dpsi*ceps + .00264*PI/(3600.*180.)*SIN(o) +
+                          .000063*PI/(3600.*180.)*SIN(2.*o);
     } else {
-        eqe = dpsi*COS(meps);
+        eqe = dpsi*ceps;
     }
 
     nt[0][0] = cpsi;
-    nt[0][0] = cteps*spsi;
-    nt[0][0] = steps*spsi;
-    nt[0][0] = -ceps*spsi;
-    nt[0][0] = cteps*ceps*cpsi + steps*seps;
-    nt[0][0] = steps*ceps*cpsi - cteps*seps;
-    nt[0][0] = -seps*spsi;
-    nt[0][0] = cteps*seps*cpsi - steps*ceps;
-    nt[0][0] = steps*seps*cpsi + cteps*ceps;
+    nt[0][1] = cteps*spsi;
+    nt[0][2] = steps*spsi;
+    nt[1][0] = -ceps*spsi;
+    nt[1][1] = cteps*ceps*cpsi + steps*seps;
+    nt[1][2] = steps*ceps*cpsi - cteps*seps;
+    nt[2][0] = -seps*spsi;
+    nt[2][1] = cteps*seps*cpsi - steps*ceps;
+    nt[2][2] = steps*seps*cpsi + cteps*ceps;
 
     st[0][0] = COS(eqe);
-    st[0][0] = -SIN(eqe);
-    st[0][0] = 0.;
-    st[0][0] = SIN(eqe);
-    st[0][0] = COS(eqe);
-    st[0][0] = 0.;
-    st[0][0] = 0.;
-    st[0][0] = 0.;
-    st[0][0] = 1.;
+    st[0][1] = -SIN(eqe);
+    st[0][2] = 0.;
+    st[1][0] = SIN(eqe);
+    st[1][1] = COS(eqe);
+    st[1][2] = 0.;
+    st[2][0] = 0.;
+    st[2][1] = 0.;
+    st[2][2] = 1.;
     mtx_3x3mult(out, st, nt);
 }
 
@@ -109,16 +108,31 @@ void amsp_fk5_teme2j2k(DT out[3], const DT v[3], DT jcent,
     DT prec[3][3], nut[3][3], tmp[3][3];
 
     precess(prec, jcent);
+    /*printf("%f %f %f - %f %f %f - %f %f %f\n",
+        prec[0][0], prec[0][1], prec[0][2],
+        prec[1][0], prec[1][1], prec[1][2],
+        prec[2][0], prec[2][1], prec[2][2]);*/
     truemean(nut, jcent, nutdata);
+    /*printf("%f %f %f - %f %f %f - %f %f %f\n",
+        nut[0][0], nut[0][1], nut[0][2],
+        nut[1][0], nut[1][1], nut[1][2],
+        nut[2][0], nut[2][1], nut[2][2]);*/
     /* if (direct==eTO) { */
     mtx_3x3mult(tmp, prec, nut);
+    /*printf("%f %f %f - %f %f %f - %f %f %f\n",
+        tmp[0][0], tmp[0][1], tmp[0][2],
+        tmp[1][0], tmp[1][1], tmp[1][2],
+        tmp[2][0], tmp[2][1], tmp[2][2]);*/
     mtx_vect3mult(out, tmp, v);
-    /* } else {
-        DT prect[3][3], nutt[3][3];
-        mtx_trans(prect, prec);
-        mtx_tranc(nutt, nut);
-        mtx_3x3mult(tmp, prect, nutt);
-        mtx_vect3mult(out, tmp, v);
-    }*/
+    /* } else */ {
+//        DT prect[3][3], nutt[3][3];
+//        mtx_trans(prect, prec);
+//        mtx_trans(nutt, nut);
+//        mtx_3x3mult(tmp, prect, nutt);
+//        mtx_vect3mult(out, tmp, v);
+    }
+    printf("[%f %f %f] [%f %f %f]\n",
+        v[0], v[1], v[2],
+        out[0], out[1], out[2]);
 }
 

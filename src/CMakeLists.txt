@@ -4,8 +4,8 @@ elseif (CMAKE_COMPILER_IS_GNUCC)
     add_definitions("-Wall -Wextra")
 endif()
 
-#add_definitions("-g")
-add_definitions("-O3 -mmmx -msse -msse2 -msse3")
+add_definitions("-g")
+#add_definitions("-O3 -mmmx -msse -msse2 -msse3")
 
 add_definitions(-DBUILDING_LIBAMSPACE)
 add_library (amspace SHARED angles.c coord.c date.c parseutils.c mtx.c

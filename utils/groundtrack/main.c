@@ -19,19 +19,26 @@
 #include <stdlib.h>
 #include <sgp4.h>
 #include <coord.h>
+#include <nutations.h>
+#include <fk5.h>
 #include <projections.h>
 
 int main(void)
 {
     tle_st *tle;
     gravconst_st g;
+    nutdata_st *nutdata;
     DT start, stop, delta;
 
     getgravconst(WGS84, &g);
+    if ((nutdata = amsp_nutation_getData("../data/nutations/nut80.dat"))==NULL) {
+        perror("amsp_nutation_getData");
+        return EXIT_FAILURE;
+    }
     start = 0.; stop = 1440; delta = .1;
     while ((tle = tle_read(stdin, 0, 0))!=NULL) {
         sat_st sat;
-        DT sph[3], mer[2], utm[4];
+        DT sph[3], mer[2], utm[4], j2k[3];
         satFromTLE(&sat, tle);
         sgp4_init(&sat, &g);
 
@@ -53,9 +60,10 @@ int main(void)
             sat.t = (jdate-sat.epochJD)*1440;
             printf("%f\n", sat.t);
             sgp4(&sat, &g);
-            amsp_coord_rect2spheric(sph, sat.pos);
-            sph[1] -= amsp_date_gstime(jdate);
-            amsp_coord_ecliptic2equatorial(sph, sph, amsp_coord_earthEclipticAtDate(jdate));
+            amsp_fk5_teme2j2k(j2k, sat.pos, jdate/36525., nutdata);
+            amsp_coord_rect2spheric(sph, j2k);
+            //sph[1] -= amsp_date_gstime(jdate);
+            //amsp_coord_ecliptic2equatorial(sph, sph, amsp_coord_earthEclipticAtDate(jdate));
             amsp_projections_sph2latlon(sph, sph);
             printf("%f %f\n", sph[1], sph[0]);
             /*amsp_coord_rect2spheric(sph, sat.pos);
@@ -97,6 +105,7 @@ int main(void)
 nextsat:
         tle_destroy(&tle);
     }
+    amsp_nutations_freeData(&nutdata);
     return 0;
 }
 

@@ -22,7 +22,7 @@ void mtx_3x3mult(DT out[3][3], DT m1[3][3], DT m2[3][3])
     for (i=0; i<3; ++i)
         for (j=0; j<3; ++j) {
             out[i][j] = 0.;
-            for (k=0; k<3; ++j)
+            for (k=0; k<3; ++k)
                 out[i][j] += m1[i][k]*m2[k][j];
         }
 }

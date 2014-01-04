@@ -38,7 +38,7 @@ nutdata_st *amsp_nutation_getData(const char *fname)
                     &ret->iar[i][0], &ret->iar[i][1], &ret->iar[i][2],
                     &ret->iar[i][3], &ret->iar[i][4],
                     &ret->rar[i][0], &ret->rar[i][1], &ret->rar[i][2],
-                    &ret->rar[i][3], &j)==EOF) {
+                    &ret->rar[i][3], &j)==EOF && i!=106) {
             amsp_nutations_freeData(&ret);
             fclose(in);
             return NULL;
